@@ -135,6 +135,8 @@ public:
 
 
 };
+
+
 TEST_F(ParticleFilterWithTwoParticlesAndTwoLandmarks, UpdateWeightsGiveParticle2EssentiallyZeroWeight) {
 	pf.updateWeights(500, std_landmark, landmark_obs, m);
 	ASSERT_THAT(pf.particles.at(0).weight, Ne(0));

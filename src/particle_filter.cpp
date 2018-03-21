@@ -128,6 +128,7 @@ std::vector<pair<double, double>> ParticleFilter::dataAssociation(const Map map_
 	//take observations and convert to difference between observations and prediction in the map frame
 	// assuming that a particle is in a certain direction. 
 	
+	int id_min;
 	vector<pair<double, double>> square_residuals;
 	double x_res_min;
 	double x_min;
@@ -145,7 +146,11 @@ std::vector<pair<double, double>> ParticleFilter::dataAssociation(const Map map_
 		y_res_min = pow(map_landmarks.landmark_list.at(0).y_f - ObservationToCompare.y, 2);
 		dist_min = x_res_min + y_res_min;
 
-		int id_min = map_landmarks.landmark_list.at(0).id_i;
+		id_min = map_landmarks.landmark_list.at(0).id_i;
+		x_min = map_landmarks.landmark_list.at(0).x_f;
+		y_min = map_landmarks.landmark_list.at(0).y_f;
+
+		//iterate over all landmarks to find association of observation with landmark
 		for (int i = 1; i < map_landmarks.landmark_list.size(); i++) {
 			double current_x_res = pow(map_landmarks.landmark_list.at(i).x_f - ObservationToCompare.x, 2);
 			double current_y_res = pow(map_landmarks.landmark_list.at(i).y_f - ObservationToCompare.y, 2);
@@ -158,17 +163,21 @@ std::vector<pair<double, double>> ParticleFilter::dataAssociation(const Map map_
 				x_min = ObservationToCompare.x;
 				y_min = ObservationToCompare.y;
 			}
-			associations.push_back(id_min);
-			sense_x.push_back(x_min);
-			sense_y.push_back(y_min);			
+					
 		}
-		// at this stage, will have the minimal pair, which can be used in later calculations
+		// at this stage, will have the minimal pair for a a landmark
+		// so observation has been matched
+		// can reuse all values
 		pair<double, double> res_pair{ x_res_min, y_res_min };
 		square_residuals.push_back(res_pair);
-		//use set association here
-		SetAssociations(p, associations, sense_x, sense_y);
+		associations.push_back(id_min);
+		sense_x.push_back(x_min);
+		sense_y.push_back(y_min);	
+		
+		
 
 	}
+	SetAssociations(p, associations, sense_x, sense_y);
 	return square_residuals;
 }
 
@@ -216,8 +225,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 		double accum = 1;
 		for (int j = 0; j < square_residuals.size(); j++) {
 			accum *= gauss_2d(square_residuals.at(j).first, square_residuals.at(j).second, std_landmark[0], std_landmark[1]);
-			cout << "square res x is " << square_residuals.at(j).first << endl;
-			cout << "square res y is " << square_residuals.at(j).second << endl;
+			
 		}
 		particles.at(i).weight = accum;
 	}
