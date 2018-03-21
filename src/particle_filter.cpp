@@ -43,13 +43,13 @@ void ParticleFilter::set_particle_location(const int id, const double x, const d
 	
 }
 
-void ParticleFilter::init(double x, double y, double theta, double std[], int n) {
+void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	// TODO: Set the number of particles. Initialize all particles to first position (based on estimates of 
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 
-	set_num_particles(n);
+	set_num_particles(50);
 	default_random_engine gen;
 
 	normal_distribution<double> distribution_x(x, std[0]);
@@ -70,6 +70,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[], int n)
 
 		particles.push_back(p);
 	}
+	is_initialized = true;
 }
 
 double ParticleFilter::gauss_2d(double sq_res_x, double sq_res_y, double std_x, double std_y) {
@@ -89,7 +90,7 @@ void ParticleFilter::prediction_deterministic(Particle& p, double velocity, doub
 		p.x += nu_div_yaw_dot * (sin(theta_prime) - sin(p.theta));
 		p.y += nu_div_yaw_dot * (cos(p.theta) - cos(theta_prime));
 		p.theta = theta_prime;
-		normalize_theta(p.theta);
+		//normalize_theta(p.theta);
 	}
 
 }
@@ -112,7 +113,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		particles.at(i).x += distribution_x(gen);
 		particles.at(i).y += distribution_y(gen);
 		particles.at(i).theta += distribution_theta(gen);
-		normalize_theta(particles.at(i).theta);
+		//normalize_theta(particles.at(i).theta);
 	}
 
 }
