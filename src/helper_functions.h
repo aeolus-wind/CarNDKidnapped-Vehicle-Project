@@ -19,6 +19,9 @@
 const double M_PI = 3.14159265358979323846;
 #endif
 
+
+
+
 /*
  * Struct representing one position/control measurement.
  */
@@ -48,6 +51,7 @@ struct LandmarkObs {
 	double y;			// Local (vehicle coordinates) y position of landmark observation [m]
 };
 
+
 /*
  * Computes the Euclidean distance between two 2D points.
  * @param (x1,y1) x and y coordinates of first point
@@ -56,6 +60,10 @@ struct LandmarkObs {
  */
 inline double dist(double x1, double y1, double x2, double y2) {
 	return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+inline void normalize_theta(double& theta) {
+	if (theta > M_PI) theta -= 2 * M_PI;
+	if (theta < -M_PI) theta += 2 * M_PI;
 }
 
 inline double * getError(double gt_x, double gt_y, double gt_theta, double pf_x, double pf_y, double pf_theta) {
@@ -239,6 +247,12 @@ inline bool read_landmark_data(std::string filename, std::vector<LandmarkObs>& o
 		observations.push_back(meas);
 	}
 	return true;
+}
+
+
+inline bool essentially_equal(double a, double b, double epsilon) {
+	// taken from Knuth as per https://stackoverflow.com/questions/17333/what-is-the-most-effective-way-for-float-and-double-comparison
+	return fabs(a - b) <= ((fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
 #endif /* HELPER_FUNCTIONS_H_ */

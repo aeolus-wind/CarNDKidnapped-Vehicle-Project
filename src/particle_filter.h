@@ -11,6 +11,8 @@
 
 #include "helper_functions.h"
 
+
+
 struct Particle {
 
 	int id;
@@ -21,6 +23,7 @@ struct Particle {
 	std::vector<int> associations;
 	std::vector<double> sense_x;
 	std::vector<double> sense_y;
+
 };
 
 
@@ -39,6 +42,16 @@ class ParticleFilter {
 	std::vector<double> weights;
 	
 public:
+	double gauss_2d(double sq_res_x, double sq_res_y, double std_x, double std_y);
+
+	int length();
+
+	void set_num_particles(int n);
+
+	static void set_particle_location(const int id, const double x,const double y,const double theta, const double weight, Particle& p);
+
+	//taking a velocity and yaw_rate, finds the next location
+	static void prediction_deterministic(Particle& p, double nu, double yaw_dot, double dt);
 	
 	// Set of current particles
 	std::vector<Particle> particles;
@@ -50,6 +63,8 @@ public:
 	// Destructor
 	~ParticleFilter() {}
 
+	
+
 	/**
 	 * init Initializes particle filter by initializing particles to Gaussian
 	 *   distribution around first position and all the weights to 1.
@@ -59,8 +74,7 @@ public:
 	 * @param std[] Array of dimension 3 [standard deviation of x [m], standard deviation of y [m]
 	 *   standard deviation of yaw [rad]]
 	 */
-	void init(double x, double y, double theta, double std[]);
-
+	void init(double x, double y, double theta, double std[], int n);
 	/**
 	 * prediction Predicts the state for the next time step
 	 *   using the process model.
@@ -78,7 +92,7 @@ public:
 	 * @param predicted Vector of predicted landmark observations
 	 * @param observations Vector of landmark observations
 	 */
-	void dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations);
+     std::vector<std::pair<double,double>> dataAssociation(const Map map_landmarks, std::vector<LandmarkObs>& observations, Particle &p);
 	
 	/**
 	 * updateWeights Updates the weights for each particle based on the likelihood of the 
